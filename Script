@@ -1,0 +1,36 @@
+$("#insert-range").on("click", () => tryCatch(insertRange));
+
+async function insertRange() {
+  await Excel.run(async (context) => {
+    const sheet = context.workbook.worksheets.getItem("OFICIOS");
+    const range = sheet.getRange("B13:J13");
+    range.insert(Excel.InsertShiftDirection.down);
+
+    const celec = sheet.getRange("B13");
+    celec.copyFrom(sheet.getRange("B7:H7"), Excel.RangeCopyType.values, false, false);
+
+    const col = sheet.getRange("B13:J13");
+    col.format.fill.color = "#990000";
+
+    const fal = sheet.getRange("I13");
+    fal.values = [["Falta"]];
+
+    const cl = sheet.getRange("D7:H7");
+    cl.clear(Excel.ClearApplyTo.contents);
+
+    const id = sheet.getRange("C7");
+    id.formulasLocal = [["=C13+1"]];
+
+    await context.sync();
+  });
+}
+
+/** Default helper for invoking an action and handling errors. */
+async function tryCatch(callback) {
+  try {
+    await callback();
+  } catch (error) {
+    // Note: In a production add-in, you'd want to notify the user through your add-in's UI.
+    console.error(error);
+  }
+}
